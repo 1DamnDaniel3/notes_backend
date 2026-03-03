@@ -1,0 +1,191 @@
+basePath: /
+definitions:
+  model.Note:
+    properties:
+      color:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user:
+        $ref: '#/definitions/model.User'
+      user_id:
+        type: integer
+    type: object
+  model.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      notes:
+        items:
+          $ref: '#/definitions/model.Note'
+        type: array
+      passwordHash:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  userhandlers.DeleteResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  userhandlers.UserResponseDTO:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      nickname:
+        type: string
+      updated_at:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Simple notes service
+  title: Notes API
+  version: "1.0"
+paths:
+  /api/users:
+    post:
+      consumes:
+      - application/json
+      description: создание User
+      parameters:
+      - description: Создание User
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userhandlers.UserResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: UserCreate
+      tags:
+      - Users
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: удаление User
+      parameters:
+      - description: ID пользователя для удаления
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userhandlers.DeleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: UserDelete
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: GetUserById
+      parameters:
+      - description: ID пользователя для поиска
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userhandlers.UserResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: GetOneUser
+      tags:
+      - Users
+    patch:
+      consumes:
+      - application/json
+      description: обновление User
+      parameters:
+      - description: обновление User
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: UserUpdate
+      tags:
+      - Users
+swagger: "2.0"

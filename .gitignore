@@ -1,0 +1,20 @@
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+
+# Go
+bin/
+*.test
+vendor/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+/internal/dbScript
