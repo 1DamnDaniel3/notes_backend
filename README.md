@@ -1,7 +1,7 @@
 # This is Simple Notes app backend
 ## How to run
 - Create Postgres DB with name "notes_db"
-- Create .env file with the next contend:
+- Create .env file with the next content:
 
 ```
 DB_HOST=localhost
