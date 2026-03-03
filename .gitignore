@@ -16,5 +16,3 @@ vendor/
 # OS
 .DS_Store
 Thumbs.db
-
-/internal/dbScript
