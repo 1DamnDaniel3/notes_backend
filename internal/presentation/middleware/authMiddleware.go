@@ -3,18 +3,18 @@ package middleware
 import (
 	"context"
 	"net/http"
-	"notes_backend/internal/presentation/routes/jwt"
 	ctxkeys "notes_backend/internal/repository/ctxKeys"
+	"notes_backend/internal/service/jwt"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthMiddleware struct {
-	JwtService jwt.JWT
+	JwtService jwt.IJWT
 }
 
-func NewAuthMiddleware(JwtService jwt.JWT) *AuthMiddleware {
+func NewAuthMiddleware(JwtService jwt.IJWT) *AuthMiddleware {
 	return &AuthMiddleware{JwtService}
 }
 

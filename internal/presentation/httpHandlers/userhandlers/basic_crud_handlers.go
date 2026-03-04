@@ -92,6 +92,11 @@ func (h *BasicUserCrudHandlers) Create(c *gin.Context) {
 		return
 	}
 
+	if len(user.PasswordHash) < 8 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Password must be at least 8 characters long "})
+		return
+	}
+
 	if err := h.repo.Create(ctx, &user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

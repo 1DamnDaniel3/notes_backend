@@ -6,7 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "localhost:3001",
     "basePath": "/",
     "paths": {
         "/api/users": {
@@ -53,6 +53,69 @@
                             "type": "object",
                             "additionalProperties": true
                         }
+                    }
+                }
+            }
+        },
+        "/api/users/login": {
+            "post": {
+                "description": "Вход стандарт email password, запись в httpOnly Cookies JWT, в body лежит user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Логин",
+                "parameters": [
+                    {
+                        "description": "Данные для логина",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/userhandlers.LoginDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userhandlers.UserResponseDTO"
+                        },
+                        "headers": {
+                            "Set-Cookie": {
+                                "type": "string",
+                                "description": "JWT-токен"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/logout": {
+            "get": {
+                "description": "Простой get для logout. Пока только удаляет JWT из браузера, не ведёт blacklist",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Логаут",
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     }
                 }
             }
@@ -196,41 +259,9 @@
         }
     },
     "definitions": {
-        "model.Note": {
-            "type": "object",
-            "properties": {
-                "color": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/model.User"
-                },
-                "user_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "model.User": {
             "type": "object",
             "properties": {
-                "created_at": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -240,16 +271,7 @@
                 "nickname": {
                     "type": "string"
                 },
-                "notes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.Note"
-                    }
-                },
-                "passwordHash": {
-                    "type": "string"
-                },
-                "updated_at": {
+                "password": {
                     "type": "string"
                 }
             }
@@ -259,6 +281,17 @@
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "userhandlers.LoginDTO": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         },

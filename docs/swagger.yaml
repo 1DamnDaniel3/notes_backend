@@ -1,47 +1,27 @@
 basePath: /
 definitions:
-  model.Note:
-    properties:
-      color:
-        type: string
-      content:
-        type: string
-      created_at:
-        type: string
-      id:
-        type: integer
-      title:
-        type: string
-      updated_at:
-        type: string
-      user:
-        $ref: '#/definitions/model.User'
-      user_id:
-        type: integer
-    type: object
   model.User:
     properties:
-      created_at:
-        type: string
       email:
         type: string
       id:
         type: integer
       nickname:
         type: string
-      notes:
-        items:
-          $ref: '#/definitions/model.Note'
-        type: array
-      passwordHash:
-        type: string
-      updated_at:
+      password:
         type: string
     type: object
   userhandlers.DeleteResponse:
     properties:
       id:
         type: integer
+    type: object
+  userhandlers.LoginDTO:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
     type: object
   userhandlers.UserResponseDTO:
     properties:
@@ -56,7 +36,7 @@ definitions:
       updated_at:
         type: string
     type: object
-host: localhost:8080
+host: localhost:3001
 info:
   contact: {}
   description: Simple notes service
@@ -188,4 +168,47 @@ paths:
       summary: UserUpdate
       tags:
       - Users
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      description: Вход стандарт email password, запись в httpOnly Cookies JWT, в
+        body лежит user
+      parameters:
+      - description: Данные для логина
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/userhandlers.LoginDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          headers:
+            Set-Cookie:
+              description: JWT-токен
+              type: string
+          schema:
+            $ref: '#/definitions/userhandlers.UserResponseDTO'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Логин
+      tags:
+      - Auth
+  /api/users/logout:
+    get:
+      description: Простой get для logout. Пока только удаляет JWT из браузера, не
+        ведёт blacklist
+      responses:
+        "204":
+          description: No Content
+      summary: Логаут
+      tags:
+      - Auth
 swagger: "2.0"

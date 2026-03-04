@@ -11,10 +11,10 @@ type User struct {
 	ID           uint      `gorm:"primaryKey" json:"id"`
 	Email        string    `gorm:"size:255;unique;not null" json:"email"`
 	Nickname     string    `gorm:"size:100;unique;not null" json:"nickname"`
-	PasswordHash string    `gorm:"not null"`
-	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
-	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
-	Notes        []Note    `gorm:"constraint:OnDelete:CASCADE"`
+	PasswordHash string    `gorm:"not null" json:"password"`
+	CreatedAt    time.Time `gorm:"autoCreateTime" json:"-"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"-"`
+	Notes        []Note    `gorm:"constraint:OnDelete:CASCADE" json:"-"`
 }
 
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {

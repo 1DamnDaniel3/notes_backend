@@ -18,10 +18,21 @@ type IUserRepo interface {
 	Create(ctx context.Context, user *model.User) error
 	Update(ctx context.Context, id any, fields map[string]interface{}) error
 	Delete(ctx context.Context, id uint, user *model.User) error
+	GetByEmail(ctx context.Context, email string) (*model.User, error)
 }
 
 func NewUserRepo(db *gorm.DB) IUserRepo {
 	return &UserRepo{db}
+}
+
+func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*model.User, error) {
+	db := repoutils.DBFromCtx(ctx, r.db)
+
+	user := &model.User{}
+	if err := db.First(user, "email = ?", email).Error; err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (r *UserRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {

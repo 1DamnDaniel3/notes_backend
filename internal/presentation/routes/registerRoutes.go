@@ -2,8 +2,9 @@ package routes
 
 import (
 	"notes_backend/internal/presentation/middleware"
-	"notes_backend/internal/presentation/routes/jwt"
 	userroutes "notes_backend/internal/presentation/routes/user_routes"
+	hashservice "notes_backend/internal/service/hashService"
+	"notes_backend/internal/service/jwt"
 	"os"
 	"time"
 
@@ -22,14 +23,17 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 
 	// == JWT ==
 	secret := os.Getenv("JWT_SECRET")
-	JWTSigner := jwt.NewJWTAdapter(secret, 5*time.Hour)
-	authMiddleware := middleware.NewAuthMiddleware(*JWTSigner)
+	jwtService := jwt.NewJWTAdapter(secret, 5*time.Hour)
+	authMiddleware := middleware.NewAuthMiddleware(jwtService)
+
+	// == hash ==
+	hashService := hashservice.NewbcryptHashService()
 
 	protected := api
 	if authMiddleware != nil {
-		protected = r.Group("")
+		protected = api.Group("")
 		protected.Use(authMiddleware.TryAuth())
 	}
 
-	userroutes.UserBasicRoutes(api, protected, db, authMiddleware)
+	userroutes.UserRoutes(api, protected, db, authMiddleware, hashService, jwtService)
 }

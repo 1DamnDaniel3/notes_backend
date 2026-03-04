@@ -11,7 +11,12 @@ type JWT struct {
 	ttl       time.Duration
 }
 
-func NewJWTAdapter(secret string, ttl time.Duration) *JWT {
+type IJWT interface {
+	Sign(claims map[string]interface{}) (string, error)
+	Verify(tokenStr string) (map[string]interface{}, error)
+}
+
+func NewJWTAdapter(secret string, ttl time.Duration) IJWT {
 	return &JWT{secretKey: secret, ttl: ttl}
 }
 
