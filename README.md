@@ -11,6 +11,9 @@ DB_NAME=notes_db
 DB_PORT=5432
 SSLMODE=disable
 
+# if ENV == prod -> add HOST==your_host
+
+
 JWT_SECRET=Aramzamzam
 PORT=3001
 ENV=dev # or prod

@@ -29,18 +29,21 @@ func (a *AuthMiddleware) TryAuth() gin.HandlerFunc {
 		}
 
 		if token == "" {
+			c.SetCookie("jwt", "", -1, "/", "localhost", false, true)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
 			return
 		}
 
 		claims, err := a.JwtService.Verify(token)
 		if err != nil {
+			c.SetCookie("jwt", "", -1, "/", "localhost", false, true)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 			return
 		}
 
 		user_id, ok := claims["user_id"].(string)
 		if !ok {
+			c.SetCookie("jwt", "", -1, "/", "localhost", false, true)
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user_id not found in claims"})
 			return
 		}
