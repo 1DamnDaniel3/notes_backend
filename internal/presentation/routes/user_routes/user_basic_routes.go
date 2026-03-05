@@ -26,7 +26,7 @@ func UserRoutes(
 
 	// auth
 	loginUC := userusecases.NewLoginUC(userRepo, hashService, jwtService)
-	authHandler := userhandlers.NewLoginHandler(loginUC)
+	authHandler := userhandlers.NewLoginHandler(loginUC, jwtService)
 
 	r.POST("/users", basicHandlers.Create)     // Create
 	r.POST("/users/login", authHandler.Login)  // Login

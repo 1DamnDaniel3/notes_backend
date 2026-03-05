@@ -3,19 +3,22 @@ package userhandlers
 import (
 	"net/http"
 	"notes_backend/internal/model"
+	"notes_backend/internal/service/jwt"
 	"notes_backend/internal/service/userusecases"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type AuthHandler struct {
-	uc userusecases.ILoginUC
+	uc         userusecases.ILoginUC
+	JwtService jwt.IJWT
 }
 
-func NewLoginHandler(uc userusecases.ILoginUC) *AuthHandler {
-	return &AuthHandler{uc}
+func NewLoginHandler(uc userusecases.ILoginUC, JwtService jwt.IJWT) *AuthHandler {
+	return &AuthHandler{uc, JwtService}
 }
 
 // Login godoc
@@ -115,4 +118,46 @@ func (r *AuthHandler) Logout(c *gin.Context) {
 		true,
 	)
 	c.Status(http.StatusNoContent)
+}
+
+// AuthCheck godoc
+// @Summary      Проверка авторизации
+// @Description  Приходит кука с токеном, высылается 200, если токен ещё валиден
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Success      200 	{object}  AuthCheckResponse
+// @Failure      401    {object}  map[string]string
+// @Router       /api/users/auth-check [get]
+func (a *AuthHandler) CheckAuth(c *gin.Context) {
+	token, err := c.Cookie("jwt")
+	if err != nil {
+		authHeader := c.GetHeader("Authorisation")
+		if strings.HasPrefix(authHeader, "Bearer ") {
+			token = strings.TrimPrefix(authHeader, "Bearer ")
+		}
+	}
+
+	if token == "" {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "missing token"})
+		return
+	}
+
+	claims, err := a.JwtService.Verify(token)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
+		return
+	}
+
+	// c.Set("user", claims)
+	delete(claims, "exp")
+	c.JSON(http.StatusOK, AuthCheckResponse{
+		IsAuthenticated: true,
+		User:            claims,
+	})
+}
+
+type AuthCheckResponse struct {
+	IsAuthenticated bool                   `json:"isAuthenticated"`
+	User            map[string]interface{} `json:"user"`
 }
