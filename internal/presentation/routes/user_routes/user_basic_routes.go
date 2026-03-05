@@ -34,8 +34,8 @@ func UserRoutes(
 
 	// ---======= protected routes
 
-	protected.PATCH("/users", basicHandlers.Update)  // Update
-	protected.GET("/users", basicHandlers.GetByID)   // GetById
-	protected.DELETE("/users", basicHandlers.Delete) // Delete
+	protected.PATCH("/users/:id", basicHandlers.Update)  // Update
+	protected.GET("/users/:id", basicHandlers.GetByID)   // GetById
+	protected.DELETE("/users/:id", basicHandlers.Delete) // Delete
 
 }

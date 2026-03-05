@@ -42,14 +42,8 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	user := model.User{
-		// ID:       0,
-		// Nickname: "",
-
 		Email:        loginData.Email,
 		PasswordHash: loginData.Password,
-
-		// CreatedAt: time.Time{},
-		// UpdatedAt: time.Time{},
 	}
 
 	token, err := h.uc.Execute(ctx, &user)

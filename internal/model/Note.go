@@ -11,5 +11,5 @@ type Note struct {
 	CreatedAt time.Time `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 
-	User User `gorm:"foreignKey:UserID"`
+	User User `gorm:"foreignKey:UserID" json:"-"`
 }

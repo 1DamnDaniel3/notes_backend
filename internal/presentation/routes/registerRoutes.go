@@ -2,6 +2,7 @@ package routes
 
 import (
 	"notes_backend/internal/presentation/middleware"
+	noteroutes "notes_backend/internal/presentation/routes/note_routes"
 	userroutes "notes_backend/internal/presentation/routes/user_routes"
 	hashservice "notes_backend/internal/service/hashService"
 	"notes_backend/internal/service/jwt"
@@ -35,5 +36,6 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 		protected.Use(authMiddleware.TryAuth())
 	}
 
+	noteroutes.NoteRoutes(api, protected, db, authMiddleware)
 	userroutes.UserRoutes(api, protected, db, authMiddleware, hashService, jwtService)
 }

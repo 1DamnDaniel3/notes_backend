@@ -1,5 +1,22 @@
 basePath: /
 definitions:
+  model.Note:
+    properties:
+      color:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   model.User:
     properties:
       email:
@@ -10,6 +27,11 @@ definitions:
         type: string
       password:
         type: string
+    type: object
+  noteshandlers.DeleteResponse:
+    properties:
+      id:
+        type: integer
     type: object
   userhandlers.AuthCheckResponse:
     properties:
@@ -51,6 +73,131 @@ info:
   title: Notes API
   version: "1.0"
 paths:
+  /api/notes:
+    post:
+      consumes:
+      - application/json
+      description: создание Note
+      parameters:
+      - description: Создание Note
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Note'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: NoteCreate
+      tags:
+      - Notes
+  /api/notes/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: удаление Note
+      parameters:
+      - description: ID заметки для удаления
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/noteshandlers.DeleteResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: NoteDelete
+      tags:
+      - Notes
+    get:
+      consumes:
+      - application/json
+      description: GetOneNote
+      parameters:
+      - description: ID пользователя для поиска
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Note'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: GetOneNote
+      tags:
+      - Notes
+    patch:
+      consumes:
+      - application/json
+      description: обновление Note
+      parameters:
+      - description: обновление User
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/model.Note'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: NoteUpdate
+      tags:
+      - Notes
   /api/users:
     post:
       consumes:

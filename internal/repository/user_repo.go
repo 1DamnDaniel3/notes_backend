@@ -16,7 +16,7 @@ type UserRepo struct {
 type IUserRepo interface {
 	GetByID(ctx context.Context, id uint) (*model.User, error)
 	Create(ctx context.Context, user *model.User) error
-	Update(ctx context.Context, id any, fields map[string]interface{}) error
+	Update(ctx context.Context, id uint, fields map[string]interface{}) error
 	Delete(ctx context.Context, id uint, user *model.User) error
 	GetByEmail(ctx context.Context, email string) (*model.User, error)
 }
@@ -25,6 +25,7 @@ func NewUserRepo(db *gorm.DB) IUserRepo {
 	return &UserRepo{db}
 }
 
+// === GetByEmail
 func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*model.User, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
@@ -35,6 +36,7 @@ func (r *UserRepo) GetByEmail(ctx context.Context, email string) (*model.User, e
 	return user, nil
 }
 
+// === GetByID
 func (r *UserRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
@@ -45,16 +47,18 @@ func (r *UserRepo) GetByID(ctx context.Context, id uint) (*model.User, error) {
 	return user, nil
 }
 
+// === Create
 func (r *UserRepo) Create(ctx context.Context, user *model.User) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
 	return db.Create(&user).Error
 }
 
-func (r *UserRepo) Update(ctx context.Context, id any, fields map[string]interface{}) error {
+// === Update
+func (r *UserRepo) Update(ctx context.Context, id uint, fields map[string]interface{}) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
-	delete(fields, "user_id")
+	delete(fields, "id")
 
 	tx := db.
 		Model(new(model.User)).
@@ -72,6 +76,7 @@ func (r *UserRepo) Update(ctx context.Context, id any, fields map[string]interfa
 	return nil
 }
 
+// === Delete
 func (r *UserRepo) Delete(ctx context.Context, id uint, user *model.User) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
 

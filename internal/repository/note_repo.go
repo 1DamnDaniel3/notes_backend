@@ -17,7 +17,7 @@ type INoteRepo interface {
 	GetByID(ctx context.Context, id uint) (*model.Note, error)
 	GetAll(ctx context.Context) (*[]model.Note, error)
 	Create(ctx context.Context, note *model.Note) error
-	Update(ctx context.Context, id uint, note *model.Note) error
+	Update(ctx context.Context, id uint, fields map[string]interface{}) error
 	Delete(ctx context.Context, id uint, note *model.Note) error
 }
 
@@ -25,6 +25,7 @@ func NewNoteRepo(db *gorm.DB) INoteRepo {
 	return &NoteRepo{db}
 }
 
+// === GetByID
 func (r *NoteRepo) GetByID(ctx context.Context, id uint) (*model.Note, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
@@ -35,6 +36,7 @@ func (r *NoteRepo) GetByID(ctx context.Context, id uint) (*model.Note, error) {
 	return note, nil
 }
 
+// === GetAll
 func (r *NoteRepo) GetAll(ctx context.Context) (*[]model.Note, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
@@ -46,19 +48,23 @@ func (r *NoteRepo) GetAll(ctx context.Context) (*[]model.Note, error) {
 	return notes, nil
 }
 
+// === Create
 func (r *NoteRepo) Create(ctx context.Context, note *model.Note) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
 	return db.Create(&note).Error
 }
 
-func (r *NoteRepo) Update(ctx context.Context, id uint, note *model.Note) error {
+// === Update
+func (r *NoteRepo) Update(ctx context.Context, id uint, fields map[string]interface{}) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
+
+	delete(fields, "id")
 
 	tx := db.
 		Model(new(model.Note)).
 		Where("id = ?", id).
-		Updates(note)
+		Updates(fields)
 
 	if tx.Error != nil {
 		return tx.Error
@@ -71,6 +77,7 @@ func (r *NoteRepo) Update(ctx context.Context, id uint, note *model.Note) error 
 	return nil
 }
 
+// === Delete
 func (r *NoteRepo) Delete(ctx context.Context, id uint, note *model.Note) error {
 	db := repoutils.DBFromCtx(ctx, r.db)
 
