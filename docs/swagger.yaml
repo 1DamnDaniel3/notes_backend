@@ -11,6 +11,14 @@ definitions:
       password:
         type: string
     type: object
+  userhandlers.AuthCheckResponse:
+    properties:
+      isAuthenticated:
+        type: boolean
+      user:
+        additionalProperties: true
+        type: object
+    type: object
   userhandlers.DeleteResponse:
     properties:
       id:
@@ -168,6 +176,27 @@ paths:
       summary: UserUpdate
       tags:
       - Users
+  /api/users/auth-check:
+    get:
+      consumes:
+      - application/json
+      description: Приходит кука с токеном, высылается 200, если токен ещё валиден
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/userhandlers.AuthCheckResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Проверка авторизации
+      tags:
+      - Auth
   /api/users/login:
     post:
       consumes:

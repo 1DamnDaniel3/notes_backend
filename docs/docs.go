@@ -63,6 +63,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/users/auth-check": {
+            "get": {
+                "description": "Приходит кука с токеном, высылается 200, если токен ещё валиден",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Проверка авторизации",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/userhandlers.AuthCheckResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/users/login": {
             "post": {
                 "description": "Вход стандарт email password, запись в httpOnly Cookies JWT, в body лежит user",
@@ -279,6 +311,18 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "userhandlers.AuthCheckResponse": {
+            "type": "object",
+            "properties": {
+                "isAuthenticated": {
+                    "type": "boolean"
+                },
+                "user": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
         },
