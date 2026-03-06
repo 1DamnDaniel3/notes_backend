@@ -16,6 +16,49 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/notes": {
+            "get": {
+                "description": "Все заметки пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notes"
+                ],
+                "summary": "GetAllUserNotes",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Фильтр публичных заметок",
+                        "name": "public",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/noteshandlers.GetAllResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "создание Note",
                 "consumes": [
@@ -44,6 +87,52 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Note"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/api/notes/public/{page}": {
+            "get": {
+                "description": "Получение всех публичных заметок с постраничной пагинацией",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Notes"
+                ],
+                "summary": "GetAllPublic",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Номер страницы (начиная с 1)",
+                        "name": "page",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/noteshandlers.GetAllPublicResponse"
                         }
                     },
                     "400": {
@@ -503,6 +592,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_public": {
+                    "type": "boolean"
+                },
                 "title": {
                     "type": "string"
                 },
@@ -536,6 +628,28 @@ const docTemplate = `{
             "properties": {
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "noteshandlers.GetAllPublicResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Note"
+                    }
+                }
+            }
+        },
+        "noteshandlers.GetAllResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.Note"
+                    }
                 }
             }
         },

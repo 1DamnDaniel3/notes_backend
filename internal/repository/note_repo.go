@@ -15,7 +15,7 @@ type NoteRepo struct {
 
 type INoteRepo interface {
 	GetByID(ctx context.Context, id uint) (*model.Note, error)
-	GetAll(ctx context.Context) (*[]model.Note, error)
+	GetAll(ctx context.Context, isPublic *bool) (*[]model.Note, error)
 	Create(ctx context.Context, note *model.Note) error
 	Update(ctx context.Context, id uint, fields map[string]interface{}) error
 	Delete(ctx context.Context, id uint, note *model.Note) error
@@ -37,8 +37,12 @@ func (r *NoteRepo) GetByID(ctx context.Context, id uint) (*model.Note, error) {
 }
 
 // === GetAll
-func (r *NoteRepo) GetAll(ctx context.Context) (*[]model.Note, error) {
+func (r *NoteRepo) GetAll(ctx context.Context, isPublic *bool) (*[]model.Note, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
+	db = repoutils.ApplyTenantFilter[model.Note](ctx, db)
+	if isPublic != nil {
+		db = db.Where("is_public = ?", *isPublic)
+	}
 
 	notes := &[]model.Note{}
 

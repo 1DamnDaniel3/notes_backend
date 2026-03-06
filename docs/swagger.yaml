@@ -10,6 +10,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_public:
+        type: boolean
       title:
         type: string
       updated_at:
@@ -32,6 +34,20 @@ definitions:
     properties:
       id:
         type: integer
+    type: object
+  noteshandlers.GetAllPublicResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Note'
+        type: array
+    type: object
+  noteshandlers.GetAllResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/model.Note'
+        type: array
     type: object
   userhandlers.AuthCheckResponse:
     properties:
@@ -81,6 +97,35 @@ info:
   version: "1.0"
 paths:
   /api/notes:
+    get:
+      consumes:
+      - application/json
+      description: Все заметки пользователя
+      parameters:
+      - description: Фильтр публичных заметок
+        in: query
+        name: public
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/noteshandlers.GetAllResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: GetAllUserNotes
+      tags:
+      - Notes
     post:
       consumes:
       - application/json
@@ -203,6 +248,37 @@ paths:
             additionalProperties: true
             type: object
       summary: NoteUpdate
+      tags:
+      - Notes
+  /api/notes/public/{page}:
+    get:
+      consumes:
+      - application/json
+      description: Получение всех публичных заметок с постраничной пагинацией
+      parameters:
+      - description: Номер страницы (начиная с 1)
+        in: path
+        name: page
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/noteshandlers.GetAllPublicResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: GetAllPublic
       tags:
       - Notes
   /api/users:

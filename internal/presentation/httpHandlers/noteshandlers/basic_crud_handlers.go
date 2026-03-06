@@ -104,6 +104,7 @@ func (h *BasicNotesCrudHandlers) Create(c *gin.Context) {
 		Title:     note.Title,
 		Content:   note.Content,
 		Color:     note.Color,
+		IsPublic:  note.IsPublic,
 		CreatedAt: note.CreatedAt,
 		UpdatedAt: note.UpdatedAt,
 	}
@@ -233,4 +234,49 @@ func (h *BasicNotesCrudHandlers) Delete(c *gin.Context) {
 
 type DeleteResponse struct {
 	ID int `json:"id"`
+}
+
+// GetAllUserNotes godoc
+// @Summary      GetAllUserNotes
+// @Description  Все заметки пользователя
+// @Tags         Notes
+// @Accept       json
+// @Produce      json
+// @Param        public  query  bool  false  "Фильтр публичных заметок"
+// @Success      200     {object} GetAllResponse
+// @Failure      400     {object} map[string]interface{}
+// @Failure      500     {object} map[string]interface{}
+// @Router       /api/notes [get]
+func (h *BasicNotesCrudHandlers) GetAll(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	var isPublic *bool
+
+	isPublicStr := c.Query("public")
+	if isPublicStr != "" {
+		val, err := strconv.ParseBool(isPublicStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid public param"})
+			return
+		}
+		isPublic = &val
+	}
+
+	notes, err := h.repo.GetAll(ctx, isPublic)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	resp := GetAllResponse{
+		Data: make([]model.Note, len(*notes)),
+	}
+
+	copy(resp.Data, *notes)
+
+	c.JSON(http.StatusOK, resp)
+}
+
+type GetAllResponse struct {
+	Data []model.Note `json:"data"`
 }
