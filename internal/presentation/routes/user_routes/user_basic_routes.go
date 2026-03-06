@@ -28,9 +28,10 @@ func UserRoutes(
 	loginUC := userusecases.NewLoginUC(userRepo, hashService, jwtService)
 	authHandler := userhandlers.NewLoginHandler(loginUC, jwtService)
 
-	r.POST("/users", basicHandlers.Create)     // Create
-	r.POST("/users/login", authHandler.Login)  // Login
-	r.GET("/users/logout", authHandler.Logout) // Logout
+	r.POST("/users", basicHandlers.Create)            // Create
+	r.POST("/users/login", authHandler.Login)         // Login
+	r.GET("/users/logout", authHandler.Logout)        // Logout
+	r.GET("/users/auth-check", authHandler.CheckAuth) // AuthCheck
 
 	// ---======= protected routes
 
