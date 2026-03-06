@@ -282,7 +282,7 @@ const docTemplate = `{
         },
         "/api/users/login": {
             "post": {
-                "description": "Вход стандарт email password, запись в httpOnly Cookies JWT, в body лежит user",
+                "description": "Вход по email/password.\nWeb: JWT записывается в httpOnly Cookie.\nMobile: JWT возвращается в body.",
                 "consumes": [
                     "application/json"
                 ],
@@ -302,18 +302,24 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/userhandlers.LoginDTO"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип клиента: mobile | web",
+                        "name": "X-Client-Type",
+                        "in": "header"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Mobile response (JWT в body)",
                         "schema": {
-                            "$ref": "#/definitions/userhandlers.UserResponseDTO"
+                            "$ref": "#/definitions/userhandlers.LoginMobileResponse"
                         },
                         "headers": {
                             "Set-Cookie": {
                                 "type": "string",
-                                "description": "JWT-токен"
+                                "description": "JWT cookie (web only)"
                             }
                         }
                     },
@@ -561,6 +567,17 @@ const docTemplate = `{
                 },
                 "password": {
                     "type": "string"
+                }
+            }
+        },
+        "userhandlers.LoginMobileResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/userhandlers.UserResponseDTO"
                 }
             }
         },

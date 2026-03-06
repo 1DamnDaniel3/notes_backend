@@ -53,6 +53,13 @@ definitions:
       password:
         type: string
     type: object
+  userhandlers.LoginMobileResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/userhandlers.UserResponseDTO'
+    type: object
   userhandlers.UserResponseDTO:
     properties:
       created_at:
@@ -348,8 +355,10 @@ paths:
     post:
       consumes:
       - application/json
-      description: Вход стандарт email password, запись в httpOnly Cookies JWT, в
-        body лежит user
+      description: |-
+        Вход по email/password.
+        Web: JWT записывается в httpOnly Cookie.
+        Mobile: JWT возвращается в body.
       parameters:
       - description: Данные для логина
         in: body
@@ -357,17 +366,21 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/userhandlers.LoginDTO'
+      - description: 'Тип клиента: mobile | web'
+        in: header
+        name: X-Client-Type
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Mobile response (JWT в body)
           headers:
             Set-Cookie:
-              description: JWT-токен
+              description: JWT cookie (web only)
               type: string
           schema:
-            $ref: '#/definitions/userhandlers.UserResponseDTO'
+            $ref: '#/definitions/userhandlers.LoginMobileResponse'
         "400":
           description: Bad Request
           schema:

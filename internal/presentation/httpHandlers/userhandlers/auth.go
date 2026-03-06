@@ -3,10 +3,10 @@ package userhandlers
 import (
 	"net/http"
 	"notes_backend/internal/model"
+	netutils "notes_backend/internal/presentation/net_utils"
 	"notes_backend/internal/service/jwt"
 	"notes_backend/internal/service/userusecases"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,18 +23,24 @@ func NewLoginHandler(uc userusecases.ILoginUC, JwtService jwt.IJWT) *AuthHandler
 
 // Login godoc
 // @Summary      Логин
-// @Description  Вход стандарт email password, запись в httpOnly Cookies JWT, в body лежит user
+// @Description  Вход по email/password.
+// @Description  Web: JWT записывается в httpOnly Cookie.
+// @Description  Mobile: JWT возвращается в body.
 // @Tags         Auth
 // @Accept       json
 // @Produce      json
 // @Param        input  body     LoginDTO  true  "Данные для логина"
-// @Success      200	{object} UserResponseDTO
-// @Header 		 200	{string} Set-Cookie "JWT-токен"
-// @Failure      400    {object}  map[string]string
+// @Param        X-Client-Type header string false "Тип клиента: mobile | web"
+// @Success      200 {object} UserResponseDTO "Web response (JWT в cookie)"
+// @Success      200 {object} LoginMobileResponse "Mobile response (JWT в body)"
+// @Header       200 {string} Set-Cookie "JWT cookie (web only)"
+// @Failure      400 {object} map[string]string
 // @Router       /api/users/login [post]
 func (h *AuthHandler) Login(c *gin.Context) {
 
 	ctx := c.Request.Context()
+	clientType := c.GetHeader("X-Client-Type") // mobile or web
+
 	loginData := LoginDTO{}
 	if err := c.ShouldBindJSON(&loginData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -60,16 +66,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		host = "localhost"
 	}
 
-	c.SetCookie(
-		"jwt",
-		token,
-		int(5*time.Hour.Seconds()),
-		"/api",
-		host,
-		secure,
-		true,
-	)
-
 	respBody := UserResponseDTO{
 		ID:        user.ID,
 		Email:     user.Email,
@@ -78,7 +74,35 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		UpdatedAt: user.UpdatedAt,
 	}
 
-	c.JSON(http.StatusOK, respBody)
+	if clientType == "mobile" {
+		respDto := LoginMobileResponse{
+			User:  respBody,
+			Token: token,
+		}
+
+		c.JSON(http.StatusOK, respDto)
+
+	} else {
+
+		c.SetCookie(
+			"jwt",
+			token,
+			int(5*time.Hour.Seconds()),
+			"/api",
+			host,
+			secure,
+			true,
+		)
+
+		c.JSON(http.StatusOK, respBody)
+
+	}
+
+}
+
+type LoginMobileResponse struct {
+	User  UserResponseDTO `json:"user"`
+	Token string          `json:"token"`
 }
 
 type LoginDTO struct {
@@ -124,12 +148,10 @@ func (r *AuthHandler) Logout(c *gin.Context) {
 // @Failure      401    {object}  map[string]string
 // @Router       /api/users/auth-check [get]
 func (a *AuthHandler) CheckAuth(c *gin.Context) {
-	token, err := c.Cookie("jwt")
+	token, err := netutils.ExtractToken(c)
 	if err != nil {
-		authHeader := c.GetHeader("Authorisation")
-		if strings.HasPrefix(authHeader, "Bearer ") {
-			token = strings.TrimPrefix(authHeader, "Bearer ")
-		}
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
 	}
 
 	if token == "" {

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	netutils "notes_backend/internal/presentation/net_utils"
 	ctxkeys "notes_backend/internal/repository/ctxKeys"
 	"notes_backend/internal/service/jwt"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,12 +21,10 @@ func NewAuthMiddleware(JwtService jwt.IJWT) *AuthMiddleware {
 
 func (a *AuthMiddleware) TryAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		token, err := c.Cookie("jwt")
+		token, err := netutils.ExtractToken(c)
 		if err != nil {
-			authHeader := c.GetHeader("Authorization")
-			if strings.HasPrefix(authHeader, "Bearer ") {
-				token = strings.TrimPrefix(authHeader, "Bearer ")
-			}
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
 		}
 
 		if token == "" {
