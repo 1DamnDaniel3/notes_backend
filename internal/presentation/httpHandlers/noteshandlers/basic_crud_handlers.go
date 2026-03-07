@@ -79,19 +79,20 @@ func (h *BasicNotesCrudHandlers) GetByID(c *gin.Context) {
 // @Router       /api/notes [post]
 func (h *BasicNotesCrudHandlers) Create(c *gin.Context) {
 	ctx := c.Request.Context()
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 
 	note := model.Note{}
 	if err := c.ShouldBindJSON(&note); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	uid, _ := strconv.Atoi(userIDFromContext)
-	if note.UserID != uint(uid) { // Проверка на вшивость
-		c.JSON(http.StatusForbidden, gin.H{"error": "You can only create your own notes"})
-		return
+	if note.UserID != 0 {
+		if note.UserID != userIDFromContext { // Проверка на вшивость
+			c.JSON(http.StatusForbidden, gin.H{"error": "You can only create your own notes"})
+			return
+		}
 	}
+	note.UserID = userIDFromContext
 
 	if err := h.repo.Create(ctx, &note); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -100,7 +101,7 @@ func (h *BasicNotesCrudHandlers) Create(c *gin.Context) {
 
 	output := model.Note{
 		ID:        note.ID,
-		UserID:    note.UserID,
+		UserID:    userIDFromContext,
 		Title:     note.Title,
 		Content:   note.Content,
 		Color:     note.Color,

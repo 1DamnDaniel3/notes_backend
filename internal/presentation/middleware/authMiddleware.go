@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	netutils "notes_backend/internal/presentation/net_utils"
 	ctxkeys "notes_backend/internal/repository/ctxKeys"
@@ -49,12 +48,12 @@ func (a *AuthMiddleware) TryAuth() gin.HandlerFunc {
 			return
 		}
 
-		userIDStr := fmt.Sprintf("%v", user_id)
+		userID := uint(user_id)
 
 		ctx := context.WithValue(
 			c.Request.Context(),
 			ctxkeys.UserId,
-			userIDStr,
+			userID,
 		)
 
 		c.Request = c.Request.WithContext(ctx)
