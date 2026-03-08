@@ -33,7 +33,7 @@ func NewBasicNotesCrudHandlers(repo repository.INoteRepo) *BasicNotesCrudHandler
 // @Router       /api/notes/{id} [get]
 func (h *BasicNotesCrudHandlers) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 	idParam := c.Param("id")
 
 	id, err := strconv.ParseUint(idParam, 10, 0)
@@ -47,8 +47,7 @@ func (h *BasicNotesCrudHandlers) GetByID(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	uid, _ := strconv.Atoi(userIDFromContext)
-	if uint(uid) != note.UserID { // Проверка на вшивость
+	if userIDFromContext != note.UserID { // Проверка на вшивость
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own notes data"})
 		return
 	}
@@ -127,7 +126,7 @@ func (h *BasicNotesCrudHandlers) Create(c *gin.Context) {
 func (h *BasicNotesCrudHandlers) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 0)
@@ -144,8 +143,7 @@ func (h *BasicNotesCrudHandlers) Update(c *gin.Context) {
 		return
 	}
 
-	uid, _ := strconv.Atoi(userIDFromContext)
-	if note.UserID != uint(uid) { // Проверка на вшивость
+	if note.UserID != userIDFromContext { // Проверка на вшивость
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only change your own notes data"})
 		return
 	}
@@ -155,6 +153,7 @@ func (h *BasicNotesCrudHandlers) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	delete(fields, "user_id") // защита от изменения вторичного ключа
 
 	// execute
 
@@ -191,7 +190,7 @@ func (h *BasicNotesCrudHandlers) Update(c *gin.Context) {
 // @Router       /api/notes/{id} [delete]
 func (h *BasicNotesCrudHandlers) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 
 	idParam := c.Param("id")
 
@@ -208,8 +207,7 @@ func (h *BasicNotesCrudHandlers) Delete(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	uid, _ := strconv.Atoi(userIDFromContext)
-	if uint(uid) != note.ID { // Проверка на вшивость
+	if userIDFromContext != note.UserID { // Проверка на вшивость
 		c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own notes"})
 		return
 	}

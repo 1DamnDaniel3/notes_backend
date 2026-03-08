@@ -43,16 +43,17 @@ type UserResponseDTO struct {
 // @Router       /api/users/{id} [get]
 func (h *BasicUserCrudHandlers) GetByID(c *gin.Context) {
 	ctx := c.Request.Context()
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 	idParam := c.Param("id")
 
-	if userIDFromContext != idParam { // Проверка на вшивость
-		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own data"})
-		return
-	}
 	id, err := strconv.ParseUint(idParam, 10, 0)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if userIDFromContext != uint(id) { // Проверка на вшивость
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only view your own data"})
 		return
 	}
 
@@ -127,18 +128,18 @@ func (h *BasicUserCrudHandlers) Create(c *gin.Context) {
 func (h *BasicUserCrudHandlers) Update(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
 
 	idParam := c.Param("id")
-
-	if userIDFromContext != idParam { // Проверка на вшивость
-		c.JSON(http.StatusForbidden, gin.H{"error": "You can only update your own data"})
-		return
-	}
 
 	id, err := strconv.ParseUint(idParam, 10, 0)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if userIDFromContext != uint(id) { // Проверка на вшивость
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only update your own data"})
 		return
 	}
 
@@ -183,14 +184,16 @@ func (h *BasicUserCrudHandlers) Delete(c *gin.Context) {
 	ctx := c.Request.Context()
 
 	idParam := c.Param("id")
-	userIDFromContext := ctx.Value(ctxkeys.UserId).(string)
-	if userIDFromContext != idParam { // Проверка на вшивость
-		c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own account"})
-		return
-	}
+	userIDFromContext := ctx.Value(ctxkeys.UserId).(uint)
+
 	id, err := strconv.ParseUint(idParam, 10, 0)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if userIDFromContext != uint(id) { // Проверка на вшивость
+		c.JSON(http.StatusForbidden, gin.H{"error": "You can only delete your own account"})
 		return
 	}
 

@@ -39,7 +39,10 @@ func (r *NoteRepo) GetByID(ctx context.Context, id uint) (*model.Note, error) {
 // === GetAll
 func (r *NoteRepo) GetAll(ctx context.Context, isPublic *bool) (*[]model.Note, error) {
 	db := repoutils.DBFromCtx(ctx, r.db)
-	db = repoutils.ApplyTenantFilter[model.Note](ctx, db)
+	db, err := repoutils.ApplyTenantFilter[model.Note](ctx, db)
+	if err != nil {
+		return nil, err
+	}
 	if isPublic != nil {
 		db = db.Where("is_public = ?", *isPublic)
 	}

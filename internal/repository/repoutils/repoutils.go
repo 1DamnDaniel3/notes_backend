@@ -2,7 +2,7 @@ package repoutils
 
 import (
 	"context"
-	"log"
+	"errors"
 	ctxkeys "notes_backend/internal/repository/ctxKeys"
 	"reflect"
 
@@ -19,18 +19,17 @@ func DBFromCtx(ctx context.Context, db *gorm.DB) *gorm.DB {
 func ApplyTenantFilter[T any](
 	ctx context.Context,
 	db *gorm.DB,
-) *gorm.DB {
+) (*gorm.DB, error) {
 
-	userID, ok := ctx.Value(ctxkeys.UserId).(string)
+	userID, ok := ctx.Value(ctxkeys.UserId).(uint)
 	if !ok {
-		log.Println("Shit")
-		return db
+		return nil, errors.New("Can't find ctx user_id in tenand filter")
 	}
 
 	// Проверяем: есть ли поле user_id у модели
 	if _, ok := reflect.TypeOf(new(T)).Elem().FieldByName("UserID"); ok {
-		return db.Where("user_id = ?", userID)
+		return db.Where("user_id = ?", userID), nil
 	}
 
-	return db
+	return db, nil
 }
