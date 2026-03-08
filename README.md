@@ -17,6 +17,12 @@ SSLMODE=disable
 JWT_SECRET=Aramzamzam
 PORT=3001
 ENV=dev # or prod
+
+# FOR DOCKER
+
+POSTGRES_DB=notes_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=XXXXXXXX
 ```
 insert your data ^^^
 - Install dependencies with `go mod tidy`
