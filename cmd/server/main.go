@@ -46,6 +46,5 @@ func main() {
 
 	routes.SetupRoutes(router, db) // routes
 
-	router.Run(":" + PORT)
-
+	router.Run("0.0.0.0:" + PORT)
 }
