@@ -2,7 +2,6 @@ package noteshandlers
 
 import (
 	"net/http"
-	"notes_backend/internal/model"
 	"notes_backend/internal/repository"
 	"strconv"
 
@@ -45,7 +44,7 @@ func (h *QueryServiceHandler) GetAllPublic(c *gin.Context) {
 	}
 
 	resp := GetAllPublicResponse{
-		Data: make([]model.Note, len(*notes)),
+		Data: make([]repository.GetAllPublicBO, len(*notes)),
 	}
 
 	copy(resp.Data, *notes)
@@ -54,5 +53,5 @@ func (h *QueryServiceHandler) GetAllPublic(c *gin.Context) {
 }
 
 type GetAllPublicResponse struct {
-	Data []model.Note `json:"data"`
+	Data []repository.GetAllPublicBO `json:"data"`
 }

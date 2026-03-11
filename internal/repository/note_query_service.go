@@ -12,24 +12,36 @@ type NoteQueryService struct {
 }
 
 type INoteQueryService interface {
-	GetAllPublic(ctx context.Context, page int64) (*[]model.Note, error)
+	GetAllPublic(ctx context.Context, page int64) (*[]GetAllPublicBO, error)
 }
 
 func NewNoteQueryService(db *gorm.DB) INoteQueryService {
 	return &NoteQueryService{db}
 }
 
-func (s *NoteQueryService) GetAllPublic(ctx context.Context, page int64) (*[]model.Note, error) {
+// BusinessObjects
+
+type GetAllPublicBO struct {
+	model.Note
+	UserNickname string
+}
+
+func (s *NoteQueryService) GetAllPublic(ctx context.Context, page int64) (*[]GetAllPublicBO, error) {
 	const pageSize = 20
 	offset := (page - 1) * pageSize
 
-	notes := &[]model.Note{}
+	notes := &[]GetAllPublicBO{}
+
 	if err := s.db.
-		Where("is_public = ?", true).
+		Table("notes").
+		Select("notes.*, users.nickname as user_nickname").
+		Joins("join users on users.id = notes.user_id").
+		Where("notes.is_public = ?", true).
 		Limit(int(pageSize)).
 		Offset(int(offset)).
-		Find(notes).Error; err != nil {
+		Scan(notes).Error; err != nil {
 		return nil, err
 	}
+
 	return notes, nil
 }
