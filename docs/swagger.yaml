@@ -39,7 +39,7 @@ definitions:
     properties:
       data:
         items:
-          $ref: '#/definitions/model.Note'
+          $ref: '#/definitions/repository.GetAllPublicBO'
         type: array
     type: object
   noteshandlers.GetAllResponse:
@@ -48,6 +48,13 @@ definitions:
         items:
           $ref: '#/definitions/model.Note'
         type: array
+    type: object
+  repository.GetAllPublicBO:
+    properties:
+      nickname:
+        type: string
+      note:
+        $ref: '#/definitions/model.Note'
     type: object
   userhandlers.AuthCheckResponse:
     properties:

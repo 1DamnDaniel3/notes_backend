@@ -22,8 +22,8 @@ func NewNoteQueryService(db *gorm.DB) INoteQueryService {
 // BusinessObjects
 
 type GetAllPublicBO struct {
-	model.Note
-	UserNickname string
+	model.Note   `json:"note"`
+	UserNickname string `json:"nickname"`
 }
 
 func (s *NoteQueryService) GetAllPublic(ctx context.Context, page int64) (*[]GetAllPublicBO, error) {

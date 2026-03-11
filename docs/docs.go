@@ -637,7 +637,7 @@ const docTemplate = `{
                 "data": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/model.Note"
+                        "$ref": "#/definitions/repository.GetAllPublicBO"
                     }
                 }
             }
@@ -650,6 +650,17 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/model.Note"
                     }
+                }
+            }
+        },
+        "repository.GetAllPublicBO": {
+            "type": "object",
+            "properties": {
+                "nickname": {
+                    "type": "string"
+                },
+                "note": {
+                    "$ref": "#/definitions/model.Note"
                 }
             }
         },
